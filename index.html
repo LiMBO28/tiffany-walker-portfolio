@@ -151,7 +151,8 @@
     section { padding: 60px 0 130px; position: relative; contain: layout style; }
 
     /* Perf: skip rendering of off-screen sections entirely */
-    #credentials, #contact { content-visibility: auto; contain-intrinsic-size: auto 800px; }
+    #credentials { padding-bottom: 160px; }
+    #contact { padding-top: 100px; }
     .sec-label {
       display: inline-block; font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.2em; color: var(--primary);
