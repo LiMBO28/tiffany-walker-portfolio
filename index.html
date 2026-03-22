@@ -424,7 +424,8 @@
     .cred-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 32px;
+      column-gap: 32px;
+      row-gap: 48px;
       margin-top: 56px;
     }
     /* Featured letter card — spans full width */
@@ -520,7 +521,7 @@
       font-size: 0.9rem; color: var(--text-muted); line-height: 1.55;
     }
     @media (max-width: 800px) {
-      .cred-grid { grid-template-columns: 1fr; }
+      .cred-grid { grid-template-columns: 1fr; row-gap: 28px; }
       .letter-card { padding: 32px 28px; }
       .letter-date { display: none; }
     }
@@ -529,7 +530,7 @@
       .cred-stat { padding: 18px 14px; min-width: 0; border-radius: 16px; flex: none; }
       .cred-stat .stat-num { font-size: 1.6rem; }
       .cred-stat .stat-label { font-size: 0.72rem; }
-      .cred-grid { margin-top: 40px; gap: 20px; }
+      .cred-grid { margin-top: 40px; row-gap: 20px; column-gap: 16px; }
       .letter-card { padding: 28px 24px; border-radius: 20px; }
       .letter-card blockquote { font-size: 0.95rem; line-height: 1.65; margin-bottom: 24px; }
       .letter-card::before { font-size: 7rem; left: 16px; }
