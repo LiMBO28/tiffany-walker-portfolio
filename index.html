@@ -1,0 +1,1067 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tiffany Walker | Creative Designer</title>
+  <meta name="description" content="Tiffany Walker is a graphic designer creating impactful flyers, posters, and digital ads to empower your brand." />
+  <!-- Perf: preconnect + font-display=swap for non-blocking font load -->
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="images/favicon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ============================
+       DESIGN TOKENS
+    ============================ */
+    :root {
+      --bg: #030305;
+      --surface: rgba(255,255,255,0.03);
+      --surface-hover: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.08);
+      --text: #F3F3F5;
+      --text-muted: #A1A1AA;
+      --primary: #FF2E93;
+      --primary-glow: rgba(255,46,147,0.3);
+      --secondary: #FF8A00;
+      --tertiary: #00E5FF;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* ============================
+       RESET & BASE
+    ============================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      cursor: none;
+      /* Perf: static mesh gradient — zero GPU cost vs animated blur orbs */
+      background-image:
+        radial-gradient(ellipse 80% 60% at 80% -10%, rgba(255,46,147,0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 60% at -10% 110%, rgba(0,229,255,0.08) 0%, transparent 60%);
+    }
+
+    ::selection { background: var(--primary); color: #fff; }
+    a, button { text-decoration: none; color: inherit; cursor: none; }
+    img { max-width: 100%; display: block; height: auto; }
+    ul { list-style: none; }
+
+    /* ============================
+       PERF: REDUCED MOTION
+    ============================ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      .marquee-track { animation: none; }
+    }
+
+    /* ============================
+       CURSOR (transform-based: no layout triggers)
+    ============================ */
+    .cursor-dot, .cursor-outline {
+      position: fixed;
+      top: 0; left: 0;
+      border-radius: 50%;
+      z-index: 9999;
+      pointer-events: none;
+      will-change: transform; /* Perf: promote to own compositor layer */
+    }
+    .cursor-dot {
+      width: 8px; height: 8px;
+      background-color: var(--primary);
+      transition: width 0.2s, height 0.2s, background-color 0.2s;
+    }
+    .cursor-outline {
+      width: 36px; height: 36px;
+      border: 1px solid var(--primary-glow);
+      transition: width 0.25s, height 0.25s, border-color 0.25s, background 0.25s;
+    }
+    .cursor-hovering .cursor-dot  { width: 12px; height: 12px; background-color: var(--tertiary); }
+    .cursor-hovering .cursor-outline { width: 56px; height: 56px; border-color: var(--tertiary); background: rgba(0,229,255,0.06); }
+
+    /* ============================
+       SCROLL REVEAL
+    ============================ */
+    .reveal { opacity: 0; transform: translateY(36px); transition: opacity 0.75s cubic-bezier(0.16,1,0.3,1), transform 0.75s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+
+    /* ============================
+       LAYOUT
+    ============================ */
+    .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; width: 100%; }
+
+    /* ============================
+       HEADER / NAV
+    ============================ */
+    header {
+      position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+      width: calc(100% - 80px); max-width: 1320px;
+      padding: 14px 28px; z-index: 100;
+      /* Perf: only one element uses backdrop-filter */
+      background: rgba(8,8,12,0.55);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border); border-radius: 100px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+    }
+    .logo { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; letter-spacing: -0.02em; }
+    .logo span { color: var(--primary); }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { font-size: 0.92rem; font-weight: 500; color: var(--text-muted); transition: color 0.25s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); }
+    .nav-cta {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      padding: 11px 26px; border-radius: 100px; font-weight: 700; color: #fff !important;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 20px var(--primary-glow); }
+
+    @media (max-width: 700px) {
+      header { width: calc(100% - 32px); top: 16px; padding: 12px 20px; }
+      .nav-links a:not(.nav-cta) { display: none; }
+      .nav-cta { padding: 9px 20px; font-size: 0.85rem; }
+      .container { padding: 0 16px; }
+    }
+
+    /* ============================
+       SECTIONS — shared
+    ============================ */
+    section { padding: 60px 0 130px; position: relative; contain: layout style; }
+
+    /* Perf: skip rendering of off-screen sections entirely */
+    #credentials, #contact { content-visibility: auto; contain-intrinsic-size: auto 800px; }
+    .sec-label {
+      display: inline-block; font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.2em; color: var(--primary);
+      background: rgba(255,46,147,0.08); padding: 7px 16px; border-radius: 100px;
+      border: 1px solid rgba(255,46,147,0.18); margin-bottom: 20px;
+    }
+
+    /* ============================
+       HERO
+    ============================ */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      text-align: center; padding-top: 160px; padding-bottom: 60px;
+    }
+    .hero-content { max-width: 860px; z-index: 1; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      padding: 9px 22px; border-radius: 100px; font-weight: 500; font-size: 0.9rem;
+      margin-bottom: 36px;
+    }
+    .hero-tag .dot { width: 8px; height: 8px; background: var(--tertiary); border-radius: 50%; box-shadow: 0 0 10px var(--tertiary); }
+    .hero h1 {
+      font-family: var(--font-display); font-size: clamp(3rem,7.5vw,6.5rem); font-weight: 800;
+      line-height: 1; letter-spacing: -0.03em; margin-bottom: 28px; text-transform: uppercase;
+    }
+    @media (max-width: 700px) {
+      .hero { min-height: auto; padding-top: 130px; padding-bottom: 40px; }
+      .hero h1 { font-size: clamp(2.4rem, 10vw, 3.2rem); margin-bottom: 20px; }
+      .hero p { font-size: 1rem; margin-bottom: 28px; }
+      .hero-tag { font-size: 0.8rem; padding: 7px 16px; margin-bottom: 24px; }
+    }
+    .gradient-text {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 50%, var(--tertiary) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: gradientShift 7s linear infinite;
+    }
+    @keyframes gradientShift { to { background-position: 200% center; } }
+    .hero p { font-size: clamp(1.05rem,1.8vw,1.3rem); color: var(--text-muted); max-width: 640px; margin: 0 auto 44px; }
+
+    /* ============================
+       MARQUEE — Perf: will-change only on the track
+    ============================ */
+    .marquee-container {
+      width: 100%; overflow: hidden; background: var(--primary); padding: 14px 0;
+      margin: 0 0 120px; transform: rotate(-2deg) scaleX(1.04);
+      color: #fff; font-family: var(--font-display); font-weight: 800;
+      font-size: 1.1rem; white-space: nowrap; position: relative; z-index: 2;
+    }
+    .marquee-track {
+      display: inline-flex; align-items: center;
+      animation: scrollLeft 18s linear infinite;
+      will-change: transform; /* Perf: GPU composite only this element */
+    }
+    .marquee-item { display: inline-flex; align-items: center; gap: 28px; padding-right: 28px; }
+    @keyframes scrollLeft { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ============================
+       PORTFOLIO
+    ============================ */
+    .portfolio-filters { display: flex; gap: 10px; margin: 32px 0 40px; flex-wrap: wrap; }
+    @media (max-width: 700px) {
+      .portfolio-filters { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 8px; margin: 20px -16px 28px; padding-left: 16px; padding-right: 16px; }
+      .portfolio-filters::-webkit-scrollbar { display: none; }
+      .filter-btn { flex-shrink: 0; padding: 8px 18px; font-size: 0.82rem; }
+    }
+    .filter-btn {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 10px 24px; border-radius: 100px; color: var(--text-muted);
+      font-family: var(--font-body); font-size: 0.9rem; font-weight: 600;
+      cursor: none; transition: background 0.25s, color 0.25s, border-color 0.25s;
+    }
+    .filter-btn:hover { background: var(--surface-hover); color: var(--text); }
+    .filter-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+    .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+
+    /* Perf: single transition declaration, specific properties only */
+    .bento-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 28px;
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      min-height: 380px; padding: 36px;
+      background-size: cover; background-position: center;
+      transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), border-color 0.4s, box-shadow 0.4s;
+      contain: layout style; /* Perf: isolate layout/paint per card */
+    }
+    .bento-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 48px rgba(0,0,0,0.55);
+      border-color: var(--primary-glow);
+    }
+    .bento-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(3,3,5,0.05) 0%, rgba(3,3,5,0.9) 100%);
+      z-index: 1; transition: background 0.4s;
+    }
+    .bento-card:hover .bento-overlay { background: linear-gradient(180deg, rgba(3,3,5,0.25) 0%, rgba(3,3,5,0.95) 100%); }
+    .bento-content { position: relative; z-index: 2; transform: translateY(16px); transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+    .bento-card:hover .bento-content { transform: translateY(0); }
+    .bento-category {
+      background: var(--primary); display: inline-block;
+      padding: 5px 14px; border-radius: 100px;
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      margin-bottom: 12px; letter-spacing: 0.06em;
+    }
+    .bento-content h3 { font-family: var(--font-display); font-size: 2rem; font-weight: 800; margin-bottom: 6px; line-height: 1.1; }
+    .bento-content p { color: rgba(255,255,255,0.65); font-size: 0.95rem; opacity: 0; transition: opacity 0.35s; }
+    .bento-card:hover .bento-content p { opacity: 1; }
+
+    /* Fallback gradient backgrounds shown when image hasn't loaded / not yet added */
+    .bento-card.fallback-flyer   { background-image: linear-gradient(135deg, #2a0a2a, #6b1b6b); }
+    .bento-card.fallback-digital { background-image: linear-gradient(135deg, #0a1a2a, #0d3d6b); }
+    .bento-card.fallback-brand   { background-image: linear-gradient(135deg, #0a1a0a, #1a4a2a); }
+    .bento-card.fallback-print   { background-image: linear-gradient(135deg, #1a0a08, #4a1a10); }
+
+    /* Grid spans */
+    .span-8  { grid-column: span 8; }
+    .span-4  { grid-column: span 4; }
+    .span-6  { grid-column: span 6; }
+    .span-5  { grid-column: span 5; }
+    .span-7  { grid-column: span 7; }
+    .span-12 { grid-column: span 12; }
+
+    @media (max-width: 1100px) {
+      .span-8, .span-4, .span-7, .span-5 { grid-column: span 6; }
+      .span-12 { grid-column: span 12; }
+      .bento-card { min-height: 320px; padding: 24px; }
+      .bento-content p { opacity: 1; }
+      .bento-content { transform: none; }
+    }
+    @media (max-width: 700px) {
+      .bento-grid { grid-template-columns: 1fr; gap: 16px; }
+      .span-8, .span-4, .span-6, .span-7, .span-5, .span-12 { grid-column: span 1; }
+      .bento-card { min-height: 260px; border-radius: 20px; padding: 20px; }
+      .bento-content h3 { font-size: 1.5rem; }
+      .bento-content p { opacity: 1; font-size: 0.88rem; }
+      .bento-content { transform: none; }
+      .video-bento-card { min-height: 220px; }
+    }
+
+    /* Video bento cards */
+    .video-bento-card { background: #0b080f; }
+    .video-bento-card video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; z-index: 0;
+    }
+
+    /* ============================
+       LIGHTBOX
+    ============================ */
+    .lightbox {
+      position: fixed; inset: 0; background: rgba(3,3,5,0.97); z-index: 999;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.35s;
+    }
+    .lightbox.active { opacity: 1; pointer-events: all; }
+    .lightbox-content {
+      max-width: 860px; width: 92%; text-align: center;
+      transform: translateY(32px); transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+    }
+    .lightbox.active .lightbox-content { transform: translateY(0); }
+    .lightbox-img {
+      width: 100%; height: 60vh; border-radius: 20px;
+      background-size: contain; background-position: center; background-repeat: no-repeat;
+      background-color: rgba(10,10,14,0.9);
+      margin-bottom: 28px; border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .lightbox h2 { font-family: var(--font-display); font-size: 2.6rem; font-weight: 800; margin-bottom: 12px; }
+    .lightbox p { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 28px; }
+    @media (max-width: 700px) {
+      .lightbox-img { height: 40vh; border-radius: 16px; margin-bottom: 20px; }
+      .lightbox h2 { font-size: 1.6rem; margin-bottom: 8px; }
+      .lightbox p { font-size: 0.92rem; margin-bottom: 20px; }
+    }
+    .lightbox-close {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 11px 32px; border-radius: 100px; color: #fff;
+      cursor: none; font-weight: 600; transition: background 0.25s, border-color 0.25s;
+    }
+    .lightbox-close:hover { background: var(--primary); border-color: var(--primary); }
+
+    /* ============================
+       CONTACT
+    ============================ */
+    .contact-wrapper {
+      display: grid; grid-template-columns: 1fr 1.25fr; gap: 56px;
+      align-items: center;
+      /* Perf: solid bg instead of backdrop-filter */
+      background: rgba(18,18,22,0.7);
+      border: 1px solid var(--border); border-radius: 36px; padding: 44px;
+    }
+    .contact-image {
+      width: 100%; aspect-ratio: 4/5; border-radius: 20px;
+      background-size: cover; background-position: center center;
+      position: relative; border: 1px solid rgba(255,255,255,0.06);
+      /* Gradient fallback if no photo added yet */
+      background-color: #111116;
+      background-image:
+        linear-gradient(160deg, rgba(255,46,147,0.15) 0%, transparent 60%),
+        linear-gradient(340deg, rgba(0,229,255,0.1) 0%, transparent 60%);
+    }
+    /* Glowing gradient border */
+    .contact-image::after {
+      content: ''; position: absolute; inset: -1px; border-radius: 21px; pointer-events: none;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.45;
+      padding: 1px;
+    }
+    .contact-img-label {
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.2em; color: rgba(255,255,255,0.25);
+      white-space: nowrap;
+    }
+    .contact-info { padding: 12px 0; }
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: rgba(0,229,255,0.07); border: 1px solid rgba(0,229,255,0.18);
+      padding: 8px 18px; border-radius: 100px;
+      font-weight: 600; font-size: 0.8rem; margin-bottom: 28px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .status-badge .sdot {
+      width: 9px; height: 9px; background: var(--tertiary); border-radius: 50%;
+      box-shadow: 0 0 10px var(--tertiary); animation: pulse 2.2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.88); } }
+    .contact-info h2 {
+      font-family: var(--font-display); font-size: clamp(2.6rem,5.5vw,5rem);
+      font-weight: 800; line-height: 1; margin-bottom: 20px; letter-spacing: -0.03em;
+    }
+    .contact-info p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 36px; max-width: 460px; line-height: 1.65; }
+    .email-link {
+      display: inline-block; font-size: clamp(1.05rem,2.5vw,1.6rem); font-weight: 700;
+      color: var(--text); border-bottom: 2px solid var(--primary); padding-bottom: 3px;
+      margin-bottom: 36px; transition: color 0.25s, border-color 0.25s; cursor: none;
+    }
+    .email-link:hover { color: var(--primary); border-color: transparent; }
+    .contact-socials { display: flex; gap: 20px; }
+    .contact-socials a {
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+      font-size: 0.85rem; color: var(--text-muted); transition: color 0.25s;
+      border: 1px solid var(--border); padding: 10px 22px; border-radius: 100px;
+      cursor: none;
+    }
+    .contact-socials a:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+    @media (max-width: 900px) {
+      .contact-wrapper { grid-template-columns: 1fr; padding: 28px; gap: 32px; }
+      .contact-image { aspect-ratio: 3/2; }
+    }
+    @media (max-width: 700px) {
+      .contact-wrapper { padding: 20px; gap: 24px; border-radius: 24px; }
+      .contact-image { aspect-ratio: 1/1; border-radius: 16px; }
+      .contact-info h2 { font-size: clamp(2rem, 8vw, 2.8rem); }
+      .contact-info p { font-size: 1rem; margin-bottom: 24px; }
+      .email-link { font-size: 1rem; margin-bottom: 24px; }
+      .contact-socials { gap: 12px; }
+      .contact-socials a { padding: 8px 16px; font-size: 0.8rem; }
+    }
+
+    /* ============================
+       CREDENTIALS / TESTIMONIALS
+    ============================ */
+    .cred-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 48px;
+    }
+    /* Featured letter card — spans full width */
+    .letter-card {
+      grid-column: 1 / -1;
+      background: rgba(18,18,22,0.7);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 48px 52px;
+      position: relative;
+      overflow: hidden;
+    }
+    .letter-card::before {
+      content: '\201C';
+      position: absolute; top: -10px; left: 36px;
+      font-family: var(--font-display); font-size: 11rem; font-weight: 800;
+      color: var(--primary); opacity: 0.08; line-height: 1; pointer-events: none;
+    }
+    .letter-card blockquote {
+      font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+      line-height: 1.75;
+      color: var(--text);
+      font-style: italic;
+      margin-bottom: 32px;
+      position: relative; z-index: 1;
+    }
+    .letter-card blockquote strong {
+      color: var(--primary);
+      font-style: normal;
+      font-weight: 700;
+    }
+    .letter-attribution {
+      display: flex; align-items: center; gap: 18px;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+    }
+    .letter-attribution-logo {
+      width: 48px; height: 48px; border-radius: 50%;
+      border: 1px solid var(--border);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .letter-attribution-logo img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .letter-attribution-info strong {
+      display: block; font-weight: 700; font-size: 1rem; margin-bottom: 2px;
+    }
+    .letter-attribution-info span {
+      font-size: 0.85rem; color: var(--text-muted);
+    }
+    .letter-date {
+      margin-left: auto;
+      font-size: 0.8rem; color: var(--text-muted);
+      font-family: var(--font-display); font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    /* Stat pills row */
+    .cred-stats {
+      display: flex; gap: 16px; flex-wrap: wrap; margin-top: 32px;
+    }
+    .cred-stat {
+      flex: 1; min-width: 140px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px 20px;
+      text-align: center;
+    }
+    .cred-stat .stat-num {
+      font-family: var(--font-display); font-size: 2.2rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      display: block; margin-bottom: 4px;
+    }
+    .cred-stat .stat-label {
+      font-size: 0.82rem; color: var(--text-muted); font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    /* Trait chips */
+    .trait-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+      padding: 28px 30px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .trait-card .trait-icon {
+      font-size: 1.6rem; margin-bottom: 6px;
+    }
+    .trait-card h4 {
+      font-family: var(--font-display); font-size: 1.05rem; font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .trait-card p {
+      font-size: 0.9rem; color: var(--text-muted); line-height: 1.55;
+    }
+    @media (max-width: 800px) {
+      .cred-grid { grid-template-columns: 1fr; }
+      .letter-card { padding: 32px 28px; }
+      .letter-date { display: none; }
+    }
+    @media (max-width: 700px) {
+      .cred-stats { gap: 10px; margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; }
+      .cred-stat { padding: 18px 14px; min-width: 0; border-radius: 16px; flex: none; }
+      .cred-stat .stat-num { font-size: 1.6rem; }
+      .cred-stat .stat-label { font-size: 0.72rem; }
+      .cred-grid { margin-top: 32px; gap: 16px; }
+      .letter-card { padding: 24px 20px; border-radius: 20px; }
+      .letter-card blockquote { font-size: 0.95rem; line-height: 1.65; margin-bottom: 24px; }
+      .letter-card::before { font-size: 7rem; left: 16px; }
+      .letter-attribution { flex-wrap: wrap; gap: 12px; padding-top: 18px; }
+      .letter-attribution-info span { font-size: 0.78rem; }
+      .trait-card { padding: 22px 20px; border-radius: 16px; }
+      .trait-card h4 { font-size: 0.95rem; }
+      .trait-card p { font-size: 0.85rem; }
+    }
+
+    /* ============================
+       FOOTER
+    ============================ */
+    footer {
+      border-top: 1px solid var(--border); padding: 36px 0;
+      display: flex; justify-content: space-between; align-items: center;
+      color: var(--text-muted); font-size: 0.9rem;
+    }
+    .socials { display: flex; gap: 20px; }
+    .socials a:hover { color: var(--primary); }
+    @media (max-width: 600px) { footer { flex-direction: column; gap: 20px; text-align: center; font-size: 0.82rem; } }
+
+    /* Mobile: hide custom cursor (touch devices don't need it) */
+    @media (hover: none), (pointer: coarse) {
+      .cursor-dot, .cursor-outline { display: none !important; }
+      body, a, button { cursor: auto; }
+    }
+
+    /* Mobile section spacing */
+    @media (max-width: 700px) {
+      section { padding: 48px 0 72px; }
+      .marquee-container { margin-bottom: 48px; font-size: 0.9rem; padding: 10px 0; }
+      .sec-label { font-size: 0.75rem; padding: 6px 14px; margin-bottom: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom Cursor (positioned via JS transform — no layout triggers) -->
+  <div class="cursor-dot"  id="cDot"></div>
+  <div class="cursor-outline" id="cOutline"></div>
+
+  <!-- Header -->
+  <header>
+    <a href="#" class="logo">Tiffany <span>Walker.</span></a>
+    <nav class="nav-links">
+      <a href="#work" class="active">Archive</a>
+      <a href="#credentials">Credentials</a>
+      <a href="#contact">Studio</a>
+      <a href="#contact" class="nav-cta">Let's Talk</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ======= HERO ======= -->
+    <section class="hero container reveal" id="home">
+      <div class="hero-content">
+        <div class="hero-tag">
+          <span class="dot"></span> Available for new projects
+        </div>
+        <h1>Visuals that <br><span class="gradient-text">Speak Volumes.</span></h1>
+        <p>I design high-impact flyers, immersive posters, and digital campaigns that make your audience stop scrolling and feel unstoppable.</p>
+        <a href="#work" class="nav-cta" style="display:inline-block; font-size:1.05rem; padding:16px 38px; margin-top:16px;">Explore the Archive</a>
+      </div>
+    </section>
+
+    <!-- ======= MARQUEE ======= -->
+    <div class="marquee-container reveal" aria-hidden="true">
+      <div class="marquee-track">
+        <div class="marquee-item"><span>FLYERS</span><span>✦</span><span>POSTERS</span><span>✦</span><span>SOCIAL MEDIA</span><span>✦</span><span>BRAND ASSETS</span><span>✦</span><span>INVITATIONS</span><span>✦</span><span>LOGOS</span><span>✦</span></div>
+        <div class="marquee-item"><span>FLYERS</span><span>✦</span><span>POSTERS</span><span>✦</span><span>SOCIAL MEDIA</span><span>✦</span><span>BRAND ASSETS</span><span>✦</span><span>INVITATIONS</span><span>✦</span><span>LOGOS</span><span>✦</span></div>
+      </div>
+    </div>
+
+    <!-- ======= PORTFOLIO ======= -->
+    <section id="work" class="container reveal">
+      <div class="sec-label">Selected Works</div>
+      <h2 style="font-family:var(--font-display);font-size:clamp(2.2rem,4vw,3rem);font-weight:800;margin-bottom:10px;">The <span style="color:var(--primary)">Archive.</span></h2>
+      <p style="color:var(--text-muted);max-width:600px;line-height:1.6;">A collection of real client work — flyers, ads, branding, and everything in between.</p>
+
+      <!-- Filters -->
+      <div class="portfolio-filters" role="group" aria-label="Portfolio filters">
+        <button class="filter-btn active" data-filter="all">All Projects</button>
+        <button class="filter-btn" data-filter="flyers">Flyers & Posters</button>
+        <button class="filter-btn" data-filter="digital">Digital & Social</button>
+        <button class="filter-btn" data-filter="branding">Branding</button>
+        <button class="filter-btn" data-filter="print">Print</button>
+        <button class="filter-btn" data-filter="motion">Motion</button>
+      </div>
+
+      <!-- Bento Grid — 10 real portfolio pieces
+           SAVE YOUR IMAGES TO: tiffany-walker-portfolio/images/
+           Filenames used below are listed next to each card comment -->
+
+      <div class="bento-grid">
+
+        <!-- 1. Ladies Night Flyer → images/ladies-night.jpg -->
+        <div class="bento-card span-7 bento-item fallback-flyer"
+             data-category="flyers"
+             data-img="images/ladies-night.jpg"
+             data-title="Ladies Night"
+             data-desc="High-impact club event flyer designed for Club Groove Garden — dark purple neon aesthetic.">
+          <div class="bento-overlay"></div>
+          <div class="bento-content">
+            <span class="bento-category">Flyers & Posters</span>
+            <h3>Ladies Night</h3>
+            <p>Scroll-stopping event flyer for Club Groove Garden with a bold neon-purple atmosphere.</p>
+          </div>
+        </div>
+
+        <!-- 2. 90s Hip-Hop Party Flyer → images/hiphop-party.jpg -->
+        <div class="bento-card span-5 bento-item fallback-flyer"
+             data-category="flyers"
+             data-img="images/hiphop-party.jpg"
+             data-title="90's Hip-Hop Party"
+             data-desc="Retro-energy event flyer for The Phantom Lounge with swirling marbled backgrounds.">
+          <div class="bento-overlay"></div>
+          <div class="bento-content">
+            <span class="bento-category">Flyers & Posters</span>
+            <h3>90s Hip-Hop Party</h3>
+            <p>Retro-energy event poster for The Phantom Lounge — bold typography meets marbled visuals.</p>
+          </div>
+        </div>
+
+        <!-- 3. Nike Air Jordan Social Ad → images/air-jordan-social.jpg -->
+        <div class="bento-card span-4 bento-item fallback-digital"
+             data-category="digital"
+             data-img="images/air-jordan-social.jpg"
+             data-title="Air Jordan Social Ad"
+             data-desc="Dark, high-contrast editorial social media ad concept for Nike Air Jordan.">
+          <div class="bento-overlay"></div>
+          <div class="bento-content">
+            <span class="bento-category" style="background:var(--secondary)">Digital & Social</span>
+            <h3>Air Jordan Ad</h3>
+            <p>Gritty editorial social media ad concept for Nike — black, red, and texture.</p>
+          </div>
+        </div>
+
+        <!-- 4. Honeybee Gardens Holiday Sale → images/honeybee-holiday.jpg -->
+        <div class="bento-card span-4 bento-item fallback-digital"
+             data-category="digital"
+             data-img="images/honeybee-holiday.jpg"
+             data-title="Honeybee Gardens Holiday Sale"
+             data-desc="Product promotional graphic for Honeybee Gardens seasonal sales campaign.">
+          <div class="bento-overlay"></div>
+          <div class="bento-content">
+            <span class="bento-category" style="background:var(--secondary)">Digital & Social</span>
+            <h3>Honeybee Gardens</h3>
+            <p>Holiday sales promotional graphic for an organic beauty brand — warm wood-textured layout.</p>
+          </div>
+        </div>
+
+        <!-- 5. SKY Abstract Wallpaper → images/sky-abstract.jpg -->
+        <div class="bento-card span-4 bento-item fallback-digital"
+             data-category="digital"
+             data-img="images/sky-abstract.jpg"
+             data-title="SKY Abstract"
+             data-desc="Vibrant abstract digital wallpaper art with swirling metallic textures.">
+          <div class="bento-overlay"></div>
+          <div class="bento-content">
+            <span class="bento-category" style="background:var(--tertiary);color:#000">Custom Art</span>
+            <h3>SKY Abstract</h3>
+            <p>Vivid marble-metallic abstract art piece — doubles as phone or desktop wallpaper.</p>
+          </div>
+        </div>
+
+        <!-- 6. CoverGirl Magazine Ad → images/covergirl-ad.jpg -->
+        <div class="bento-card span-6 bento-item fallback-print"
+             data-category="print"
+             data-img="images/covergirl-ad.jpg"
+             data-title="CoverGirl TrueMatch Campaign"
+             data-desc="Editorial magazine-style advertisement layout for CoverGirl TrueMatch Lipstick.">
+          <div class="bento-overlay"></div>
+          <div class="bento-content">
+            <span class="bento-category" style="background:#b8860b">Print / Magazine</span>
+            <h3>CoverGirl Campaign</h3>
+            <p>Full-page editorial ad for CoverGirl TrueMatch — polished, beauty-industry layout.</p>
+          </div>
+        </div>
+
+        <!-- 7. Navy Pinning Ceremony Invite → images/navy-ceremony-invite.jpg -->
+        <div class="bento-card span-6 bento-item fallback-print"
+             data-category="print"
+             data-img="images/navy-ceremony-invite.jpg"
+             data-title="Master Chief Pinning Ceremony"
+             data-desc="Elegant formal invitation for a US Navy Master Chief Petty Officer pinning ceremony.">
+          <div class="bento-overlay"></div>
+          <div class="bento-content">
+            <span class="bento-category" style="background:#1c3d6b">Print / Invitation</span>
+            <h3>Navy Pinning Invite</h3>
+            <p>Elegant formal invitation crafted for a US Navy Master Chief pinning ceremony in Hawaii.</p>
+          </div>
+        </div>
+
+        <!-- 8. CN San Diego Logo → images/cn-san-diego-logo.jpg -->
+        <div class="bento-card span-4 bento-item fallback-brand"
+             data-category="branding"
+             data-img="images/cn-san-diego-logo.jpg"
+             data-title="CN San Diego Logo"
+             data-desc="Custom letter-form logo design for CN San Diego featuring a dynamic ribbon element.">
+          <div class="bento-overlay"></div>
+          <div class="bento-content">
+            <span class="bento-category" style="background:var(--tertiary);color:#000">Branding / Logo</span>
+            <h3>CN San Diego</h3>
+            <p>Bold letterform logo with dynamic ribbon accent — clean black and sky-blue palette.</p>
+          </div>
+        </div>
+
+        <!-- 9. T Letter Logo Variations → images/t-letter-logo.jpg -->
+        <div class="bento-card span-4 bento-item fallback-brand"
+             data-category="branding"
+             data-img="images/t-letter-logo.jpg"
+             data-title="T Letter Logo System"
+             data-desc="Four colorway variations of a modern dimensional T lettermark logo.">
+          <div class="bento-overlay"></div>
+          <div class="bento-content">
+            <span class="bento-category" style="background:var(--tertiary);color:#000">Branding / Logo</span>
+            <h3>T Letter Logo System</h3>
+            <p>Four gradient colorway variations of a 3D-dimensional T lettermark for a personal brand.</p>
+          </div>
+        </div>
+
+        <!-- 10. Something Fun Business Card → images/something-fun-card.jpg -->
+        <div class="bento-card span-4 bento-item fallback-brand"
+             data-category="branding"
+             data-img="images/something-fun-card.jpg"
+             data-title="Something Fun — Business Card"
+             data-desc="Fun, playful business card design for Something Fun handcrafted gifts shop.">
+          <div class="bento-overlay"></div>
+          <div class="bento-content">
+            <span class="bento-category" style="background:#e6c000;color:#000">Branding / Print</span>
+            <h3>Something Fun</h3>
+            <p>Cheerful, playful business card design for a handcrafted gifts boutique — front & back.</p>
+          </div>
+        </div>
+
+        <!-- 11. Valentine's Night Party — Motion Graphic → images/Comp_1.mov -->
+        <div class="bento-card span-12 bento-item video-bento-card"
+             data-category="motion"
+             data-video="images/Comp_1.mp4"
+             data-title="Valentine's Night Party"
+             data-desc="Original motion graphic for a Valentine's Night Party event — animated typography, fluid transitions, and high-energy visual storytelling.">
+          <video muted loop playsinline preload="none">
+            <source data-src="images/Comp_1.mp4" type="video/mp4">
+          </video>
+          <div class="bento-overlay"></div>
+          <div class="bento-content">
+            <span class="bento-category" style="background:linear-gradient(135deg,var(--primary),var(--secondary))">✦ Motion Graphic</span>
+            <h3>Valentine's Night Party</h3>
+            <p>Animated motion graphic — bold type, fluid movement, and cinematic energy made for the event screen.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======= CREDENTIALS / TESTIMONIALS ======= -->
+    <section id="credentials" class="container reveal">
+      <div class="sec-label">Credentials</div>
+      <h2 style="font-family:var(--font-display);font-size:clamp(2.2rem,4vw,3rem);font-weight:800;margin-bottom:10px;">What <span style="color:var(--primary)">They Say.</span></h2>
+      <p style="color:var(--text-muted);max-width:640px;line-height:1.6;">Praise from collaborators, clients, and industry professionals who've worked with Tiffany firsthand.</p>
+
+      <!-- Key stats -->
+      <div class="cred-stats">
+        <div class="cred-stat"><span class="stat-num">10+</span><span class="stat-label">Projects Delivered</span></div>
+        <div class="cred-stat"><span class="stat-num">100%</span><span class="stat-label">On-Time Rate</span></div>
+        <div class="cred-stat"><span class="stat-num">5+</span><span class="stat-label">Client Sectors</span></div>
+        <div class="cred-stat"><span class="stat-num">3+</span><span class="stat-label">Years Creating</span></div>
+      </div>
+
+      <div class="cred-grid">
+
+        <!-- Featured Letter of Recommendation —— Heather Landers / Rooted Copywriting -->
+        <div class="letter-card">
+          <blockquote>
+            &ldquo;I had the pleasure of working with Ms. Tiffany Walker as a collaborative design partner to create some spec pieces for my copywriting portfolio. I strongly recommend working with Ms. Walker as a graphic designer.
+            <strong>She is timely, getting projects done well before deadlines.</strong>
+            She asks great questions, and is open to feedback. Ms. Walker was always attentive at meetings, and asked for clarification on projects when needed.
+            <strong>Her designs show great promise in understanding brand tone and voice.</strong>
+            Ms. Walker is professional and always courteous&hellip;
+            <strong>This self-starter attitude, mind toward growth, and willingness to practice and collaborate will take Ms. Walker far in her design career.</strong>&rdquo;
+          </blockquote>
+          <div class="letter-attribution">
+            <div class="letter-attribution-logo"><img src="images/Heather.png" alt="Heather Landers" loading="lazy"></div>
+            <div class="letter-attribution-info">
+              <strong>Heather Landers</strong>
+              <span>Founder &amp; Copywriter, Rooted Copywriting</span>
+            </div>
+            <div class="letter-date">Nov 2023</div>
+          </div>
+        </div>
+
+        <!-- Trait card 1 -->
+        <div class="trait-card">
+          <div class="trait-icon">⚡</div>
+          <h4>Always Ahead of Deadline</h4>
+          <p>Tiffany consistently delivers completed work before the due date, giving clients time to review, refine, and launch without stress.</p>
+        </div>
+
+        <!-- Trait card 2 -->
+        <div class="trait-card">
+          <div class="trait-icon">🎯</div>
+          <h4>Brand-First Thinking</h4>
+          <p>She takes time to understand a client's tone, voice, and audience before a single design decision is made — resulting in visuals that actually fit the brand.</p>
+        </div>
+
+        <!-- Trait card 3 -->
+        <div class="trait-card">
+          <div class="trait-icon">💬</div>
+          <h4>Open to Feedback</h4>
+          <p>Collaborative by nature, Tiffany asks the right questions, listens closely, and welcomes feedback as part of the creative process — not an obstacle to it.</p>
+        </div>
+
+        <!-- Trait card 4 -->
+        <div class="trait-card">
+          <div class="trait-icon">🚀</div>
+          <h4>Self-Starter Mindset</h4>
+          <p>She proactively seeks opportunities to grow — including volunteering her time to collaborate on projects that sharpen her skills and expand her expertise.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======= CONTACT ======= -->
+    <section id="contact" class="container reveal">
+      <div class="contact-wrapper">
+
+        <!-- Replace URL below with your actual photo:
+             Save your photo as: tiffany-walker-portfolio/images/tiffany-photo.jpg -->
+        <div class="contact-image" id="contactPhoto" style="background-image:url('images/TiffanyHeadshot.png');">
+          <span class="contact-img-label">Your Photo Here</span>
+        </div>
+
+        <div class="contact-info">
+          <div class="status-badge"><span class="sdot"></span> Accepting New Clients</div>
+          <h2>Let's build<br><span class="gradient-text">Something Great.</span></h2>
+          <p>Ready to level up your brand's visuals? Drop me a line — I'd love to hear about your next project and make it a reality together.</p>
+          <a href="mailto:tippysdesigns02@gmail.com" class="email-link">tippysdesigns02@gmail.com</a>
+          <div class="contact-socials">
+            <a href="https://www.instagram.com/tippypandababy/" target="_blank" rel="noopener">Instagram</a>
+            <a href="https://www.tiktok.com/@tippypandababy" target="_blank" rel="noopener">TikTok</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="container reveal">
+    <div>&copy; 2026 Tiffany Walker&nbsp;&mdash;&nbsp;All rights reserved.</div>
+    <div class="socials">
+      <a href="https://www.instagram.com/tippypandababy/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.tiktok.com/@tippypandababy" target="_blank" rel="noopener">TikTok</a>
+    </div>
+  </footer>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lb" role="dialog" aria-modal="true" aria-label="Portfolio project detail">
+    <div class="lightbox-content">
+      <div class="lightbox-img" id="lbImg"></div>
+      <h2 id="lbTitle"></h2>
+      <p id="lbDesc"></p>
+      <button class="lightbox-close" id="lbClose">Close Project</button>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================
+       PERF OPTIMIZATIONS:
+       - Cursor: rAF only runs when mouse is moving (auto-sleeps)
+       - Cursor hover: single delegated listener on document
+       - Images: lazy-loaded via IntersectionObserver (only when near viewport)
+       - Video: lazy-loaded — src injected + autoplay only when visible
+       - Duplicate IntersectionObserver removed
+       - Filter animation uses class toggle instead of inline styles
+       - content-visibility: auto on off-screen sections (CSS)
+       - contain: layout style on sections + cards (CSS)
+    ========================================================= */
+
+    // 1. CUSTOM CURSOR — rAF auto-sleeps when mouse stops
+    const cDot     = document.getElementById('cDot');
+    const cOutline = document.getElementById('cOutline');
+    let tx = 0, ty = 0, ox = 0, oy = 0, cursorActive = false;
+
+    document.addEventListener('mousemove', e => {
+      tx = e.clientX; ty = e.clientY;
+      cDot.style.transform = `translate(${tx - 4}px, ${ty - 4}px)`;
+      if (!cursorActive) { cursorActive = true; followOutline(); }
+    }, { passive: true });
+
+    function followOutline() {
+      const dx = tx - ox, dy = ty - oy;
+      ox += dx * 0.14;
+      oy += dy * 0.14;
+      cOutline.style.transform = `translate(${ox - 18}px, ${oy - 18}px)`;
+      // Sleep when close enough (save CPU when mouse is idle)
+      if (Math.abs(dx) > 0.3 || Math.abs(dy) > 0.3) {
+        requestAnimationFrame(followOutline);
+      } else {
+        ox = tx; oy = ty;
+        cOutline.style.transform = `translate(${ox - 18}px, ${oy - 18}px)`;
+        cursorActive = false;
+      }
+    }
+
+    // Cursor hover — single delegated listener instead of N listeners
+    document.addEventListener('mouseover', e => {
+      if (e.target.closest('a, button, .bento-card')) {
+        document.body.classList.add('cursor-hovering');
+      } else {
+        document.body.classList.remove('cursor-hovering');
+      }
+    }, { passive: true });
+
+    // 2. SCROLL REVEAL — single IntersectionObserver
+    const io = new IntersectionObserver((entries, obs) => {
+      for (let i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          entries[i].target.classList.add('active');
+          obs.unobserve(entries[i].target);
+        }
+      }
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // 3. LAZY-LOAD IMAGES — only fetch when card enters viewport
+    const imgObserver = new IntersectionObserver((entries, obs) => {
+      for (let i = 0; i < entries.length; i++) {
+        if (!entries[i].isIntersecting) continue;
+        const card = entries[i].target;
+        const imgPath = card.dataset.img;
+        if (imgPath) {
+          const img = new Image();
+          img.onload = () => {
+            card.classList.remove('fallback-flyer','fallback-digital','fallback-brand','fallback-print');
+            card.style.backgroundImage = `url('${imgPath}')`;
+          };
+          img.src = imgPath;
+        }
+        obs.unobserve(card);
+      }
+    }, { rootMargin: '200px 0px' }); // start loading 200px before visible
+    document.querySelectorAll('.bento-item[data-img]').forEach(c => imgObserver.observe(c));
+
+    // 4. LAZY-LOAD VIDEO — inject src + autoplay only when near viewport
+    const vidObserver = new IntersectionObserver((entries, obs) => {
+      for (let i = 0; i < entries.length; i++) {
+        if (!entries[i].isIntersecting) continue;
+        const card = entries[i].target;
+        const video = card.querySelector('video');
+        if (video) {
+          const source = video.querySelector('source[data-src]');
+          if (source) {
+            source.src = source.dataset.src;
+            source.removeAttribute('data-src');
+            video.load();
+            video.play().catch(() => {});
+          }
+        }
+        obs.unobserve(card);
+      }
+    }, { rootMargin: '300px 0px' });
+    document.querySelectorAll('.video-bento-card').forEach(c => vidObserver.observe(c));
+
+    // 5. CONTACT PHOTO — lazy load
+    const contactPhoto = document.getElementById('contactPhoto');
+    const cpObserver = new IntersectionObserver((entries, obs) => {
+      if (!entries[0].isIntersecting) return;
+      const cpImg = new Image();
+      cpImg.onload = () => {
+        contactPhoto.style.backgroundImage = "url('images/TiffanyHeadshot.png')";
+        const label = contactPhoto.querySelector('.contact-img-label');
+        if (label) label.style.display = 'none';
+      };
+      cpImg.src = 'images/TiffanyHeadshot.png';
+      obs.unobserve(contactPhoto);
+    }, { rootMargin: '300px 0px' });
+    cpObserver.observe(contactPhoto);
+
+    // 6. PORTFOLIO FILTERING — event delegation
+    const filterWrap = document.querySelector('.portfolio-filters');
+    const allCards = document.querySelectorAll('.bento-item');
+
+    filterWrap.addEventListener('click', e => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      filterWrap.querySelector('.filter-btn.active').classList.remove('active');
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      for (let i = 0; i < allCards.length; i++) {
+        const c = allCards[i];
+        const show = filter === 'all' || c.dataset.category === filter;
+        if (show) {
+          c.style.display = 'flex';
+          c.style.opacity = '0'; c.style.transform = 'scale(0.97)';
+          requestAnimationFrame(() => { c.style.opacity = '1'; c.style.transform = ''; });
+        } else {
+          c.style.opacity = '0'; c.style.transform = 'scale(0.97)';
+          setTimeout(() => { c.style.display = 'none'; }, 280);
+        }
+      }
+    });
+
+    // 7. LIGHTBOX — event delegation on grid
+    const lb      = document.getElementById('lb');
+    const lbImg   = document.getElementById('lbImg');
+    const lbTitle = document.getElementById('lbTitle');
+    const lbDesc  = document.getElementById('lbDesc');
+
+    document.querySelector('.bento-grid').addEventListener('click', e => {
+      const card = e.target.closest('.bento-item');
+      if (!card) return;
+      lbTitle.textContent = card.dataset.title || card.querySelector('h3').textContent;
+      lbDesc.textContent  = card.dataset.desc  || card.querySelector('p').textContent;
+      lbImg.innerHTML = '';
+      const videoSrc = card.dataset.video;
+      if (videoSrc) {
+        lbImg.style.backgroundImage = 'none';
+        const vid = document.createElement('video');
+        vid.autoplay = true; vid.muted = true; vid.loop = true; vid.playsInline = true;
+        vid.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:16px;';
+        const src = document.createElement('source');
+        src.src = videoSrc; src.type = 'video/mp4';
+        vid.appendChild(src); lbImg.appendChild(vid);
+      } else {
+        lbImg.style.backgroundImage = card.style.backgroundImage || 'linear-gradient(135deg, #111, #222)';
+      }
+      lb.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+
+    const closeLb = () => { lb.classList.remove('active'); document.body.style.overflow = ''; lbImg.innerHTML = ''; };
+    document.getElementById('lbClose').addEventListener('click', closeLb);
+    lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+
+    // 8. SMOOTH SCROLL
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const t = document.querySelector(a.getAttribute('href'));
+        if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+  </script>
+</body>
+</html>
